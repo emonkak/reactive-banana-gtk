@@ -1,0 +1,12 @@
+Name:		reactive-banana-gtk
+Version:	0.0.0
+License:	MIT
+Author:		Emon Tsukimiya
+Category:	FRP, GUI
+Synopsis:	reactive-banana GTK+ user interface
+Cabal-Version:	>= 1.6
+Build-Type:	Simple
+
+Library
+  Build-Depends:	base, glib, gtk, mtl, reactive-banana
+  Exposed-Modules:	Reactive.Banana.Gtk
