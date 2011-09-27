@@ -1,5 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable, ExistentialQuantification, FlexibleInstances,
-             StandaloneDeriving #-}
+{-# LANGUAGE ExistentialQuantification #-}
 
 module Reactive.Banana.Gtk (
   AttrOp'(..), eventM, event0, event1, event2, event3,
@@ -7,47 +6,24 @@ module Reactive.Banana.Gtk (
 ) where
 
 import Control.Monad.Reader
-import Data.Typeable
 import Foreign.Ptr
 import Reactive.Banana
 import System.Glib.Attributes
 import System.Glib.Signals
-import System.IO.Unsafe
 
 import qualified Graphics.UI.Gtk as Gtk
 import qualified Graphics.UI.Gtk.General.Enums as Gtk
 
-deriving instance Typeable Gtk.EAny
-deriving instance Typeable Gtk.EKey
-deriving instance Typeable Gtk.EButton
-deriving instance Typeable Gtk.EScroll
-deriving instance Typeable Gtk.EMotion
-deriving instance Typeable Gtk.EExpose
-deriving instance Typeable Gtk.EVisibility
-deriving instance Typeable Gtk.ECrossing
-deriving instance Typeable Gtk.EFocus
-deriving instance Typeable Gtk.EConfigure
-deriving instance Typeable Gtk.EProperty
-deriving instance Typeable Gtk.EProximity
-deriving instance Typeable Gtk.EWindowState
-deriving instance Typeable Gtk.EOwnerChange
-deriving instance Typeable Gtk.EGrabBroken
-
-instance Typeable (Gtk.EventM t a) where
-  typeOf event = unsafePerformIO $ runReaderT (typeOf <$> ask) event
-
 type EventBuilder self callback a =
   self -> Signal self callback -> NetworkDescription (Event a)
 
-eventM :: Typeable a => EventBuilder self (Gtk.EventM a Bool) (Ptr a)
+eventM :: EventBuilder self (Gtk.EventM a Bool) (Ptr a)
 eventM self signal = do
   (addHandler, runHandlers) <- liftIO newAddHandler
   liftIO $ on self signal $ Gtk.tryEvent $ ask >>= liftIO . runHandlers
   fromAddHandler addHandler
 
-eventN :: Typeable a
-       => ((a -> IO ()) -> callback)
-       -> EventBuilder self callback a
+eventN :: ((a -> IO ()) -> callback) -> EventBuilder self callback a
 eventN f self signal = do
   (addHandler, runHandlers) <- liftIO newAddHandler
   liftIO $ on self signal $ f runHandlers
